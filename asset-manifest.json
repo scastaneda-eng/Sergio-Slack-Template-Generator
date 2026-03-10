@@ -1,15 +1,16 @@
 {
   "files": {
-    "main.css": "/Sergio-s-Project/static/css/main.a2127b91.css",
-    "main.js": "/Sergio-s-Project/static/js/main.be796522.js",
+    "main.css": "/Sergio-s-Project/static/css/main.50cad40c.css",
+    "main.js": "/Sergio-s-Project/static/js/main.057227c5.js",
     "static/js/453.b765096b.chunk.js": "/Sergio-s-Project/static/js/453.b765096b.chunk.js",
+    "static/media/slack-logo.png": "/Sergio-s-Project/static/media/slack-logo.08a9dcfe3abb4decbf15.png",
     "index.html": "/Sergio-s-Project/index.html",
-    "main.a2127b91.css.map": "/Sergio-s-Project/static/css/main.a2127b91.css.map",
-    "main.be796522.js.map": "/Sergio-s-Project/static/js/main.be796522.js.map",
+    "main.50cad40c.css.map": "/Sergio-s-Project/static/css/main.50cad40c.css.map",
+    "main.057227c5.js.map": "/Sergio-s-Project/static/js/main.057227c5.js.map",
     "453.b765096b.chunk.js.map": "/Sergio-s-Project/static/js/453.b765096b.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.a2127b91.css",
-    "static/js/main.be796522.js"
+    "static/css/main.50cad40c.css",
+    "static/js/main.057227c5.js"
   ]
 }

@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/Sergio-Slack-Template-Generator/static/css/main.1fe4c86a.css",
+    "main.css": "/Sergio-Slack-Template-Generator/static/css/main.7e95e896.css",
     "main.js": "/Sergio-Slack-Template-Generator/static/js/main.34696942.js",
     "static/js/453.b765096b.chunk.js": "/Sergio-Slack-Template-Generator/static/js/453.b765096b.chunk.js",
     "static/media/slack-logo.png": "/Sergio-Slack-Template-Generator/static/media/slack-logo.08a9dcfe3abb4decbf15.png",
     "index.html": "/Sergio-Slack-Template-Generator/index.html",
-    "main.1fe4c86a.css.map": "/Sergio-Slack-Template-Generator/static/css/main.1fe4c86a.css.map",
+    "main.7e95e896.css.map": "/Sergio-Slack-Template-Generator/static/css/main.7e95e896.css.map",
     "main.34696942.js.map": "/Sergio-Slack-Template-Generator/static/js/main.34696942.js.map",
     "453.b765096b.chunk.js.map": "/Sergio-Slack-Template-Generator/static/js/453.b765096b.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.1fe4c86a.css",
+    "static/css/main.7e95e896.css",
     "static/js/main.34696942.js"
   ]
 }

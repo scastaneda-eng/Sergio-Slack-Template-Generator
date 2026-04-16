@@ -2,12 +2,13 @@
   "name": "my-cursor-project",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://scastaneda-eng.github.io/Sergio-s-Project",
+  "homepage": "https://scastaneda-eng.github.io/Sergio-Slack-Template-Generator",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^13.5.0",
+    "colorthief": "^3.3.1",
     "firebase": "^12.10.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
@@ -18,7 +19,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },

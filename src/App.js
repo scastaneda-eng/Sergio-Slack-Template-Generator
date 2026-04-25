@@ -1,7 +1,8 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { getPalette } from 'colorthief';
 import './App.css';
-import slackLogo from './slack-logo.png';
+import slackAppIcon from './slack-app-icon.jpeg';
+
 const rgbToHex = (r, g, b) => {
   const toHex = (value) => value.toString(16).padStart(2, '0');
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
@@ -81,7 +82,6 @@ function App() {
         return rgbToHex(r, g, b);
       });
 
-      // Slack sidebar theme: comma-separated hex codes (4 colors).
       const finalTheme = hexColors.join(', ');
 
       setColors(
@@ -97,9 +97,6 @@ function App() {
       setThemeString(finalTheme);
       setError('');
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      // eslint-disable-next-line no-console
       console.error('Color extraction failed', error);
       setError('Something went wrong while extracting colors. Check the console for details and try another image.');
       setColors([]);
@@ -118,28 +115,33 @@ function App() {
         setTimeout(() => setCopied(false), 1500);
       }
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error('Copy failed', err);
     }
   };
+
+  const previewBg = colors[0]?.hex ?? '#3F0E40';
+  const previewSelected = colors[1]?.hex ?? '#1164A3';
+  const previewAccent = colors[3]?.hex ?? '#ECB22E';
+  const previewFg = (() => {
+    if (colors.length === 0) return '#fff';
+    const [r, g, b] = colors[0].rgb;
+    const lum = (r * 299 + g * 587 + b * 114) / 1000;
+    return lum < 128 ? '#fff' : '#1D1C1D';
+  })();
 
   return (
     <div className="App">
       <div className="app-shell">
         <header className="app-header">
-          <div className="app-brand">
-            <div className="app-logo">
-              <img
-               src={slackLogo}
-               alt="Slack logo"
-               className="app-logo-icon"
-             />
-            </div>
-          </div>
+          <img
+            src={slackAppIcon}
+            alt="Slack"
+            className="app-logo-icon"
+          />
           <div>
             <h1>Slack Theme Generator</h1>
             <p className="app-subtitle">
-              Drop in a logo, get a Slack sidebar theme you can paste directly into Slack. Perfectly matched to your customer's brand
+              Drop in a logo, get a Slack sidebar theme you can paste directly into Slack. Perfectly matched to your customer's brand.
             </p>
           </div>
         </header>
@@ -180,9 +182,13 @@ function App() {
           </section>
 
           <section className="card results-card">
-            <h2 className="card-title">2. Generated palette</h2>
+            <h2 className="card-title">2. Palette &amp; Slack theme</h2>
             <p className="card-subtitle">
-              These are the 4 most dominant colors detected from your logo.
+              The 4 most dominant colors detected — paste the string into{' '}
+              <span className="theme-highlight">
+                Slack › Preferences › Sidebar › Custom theme
+              </span>
+              .
             </p>
 
             {isExtracting && (
@@ -216,15 +222,6 @@ function App() {
             )}
 
             <div className="theme-section">
-              <h3 className="theme-title">3. Slack sidebar theme</h3>
-              <p className="theme-description">
-                Copy this string and paste it into{' '}
-                <span className="theme-highlight">
-                  Slack &gt; Preferences &gt; Sidebar &gt; Custom theme
-                </span>
-                .
-              </p>
-
               <div className="theme-input-row">
                 <textarea
                   className="theme-textarea"
@@ -242,7 +239,6 @@ function App() {
                   {copied ? 'Copied' : 'Copy'}
                 </button>
               </div>
-
               <p className="theme-help-text">
                 The values map to your Slack sidebar colors from left to right
                 (background, active item, hover, text, and accents).
@@ -250,6 +246,45 @@ function App() {
             </div>
           </section>
         </main>
+
+        <section className="card preview-card">
+          <h2 className="card-title">3. Live sidebar preview</h2>
+          <p className="card-subtitle">How your theme looks applied to a Slack workspace.</p>
+          <div className="sidebar-preview">
+            <div className="sp-side" style={{ background: previewBg, color: previewFg }}>
+              <div className="sp-ws">Your Workspace</div>
+              <div
+                className="sp-row selected"
+                style={{ background: previewSelected, color: previewFg }}
+              >
+                <span className="sp-hash">#</span>general
+              </div>
+              <div className="sp-row">
+                <span className="sp-hash">#</span>design
+              </div>
+              <div className="sp-row">
+                <span className="sp-hash">#</span>random
+              </div>
+              <div className="sp-row" style={{ color: previewAccent, fontWeight: 900 }}>
+                @ mentions · 3
+              </div>
+            </div>
+            <div className="sp-main">
+              <div className="sp-msg">
+                <div className="sp-av">RK</div>
+                <div className="sp-body">
+                  <b>Riley K.</b>Live preview of your sidebar theme 🎨
+                </div>
+              </div>
+              <div className="sp-msg">
+                <div className="sp-av" style={{ background: '#2EB67D' }}>MO</div>
+                <div className="sp-body">
+                  <b>Marcus O.</b>Looks great with the brand colors
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <footer className="app-footer">
           Created and maintained by Sergio Castaneda, Slack Solution Engineer

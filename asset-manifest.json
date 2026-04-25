@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/Sergio-Slack-Template-Generator/static/css/main.7e95e896.css",
-    "main.js": "/Sergio-Slack-Template-Generator/static/js/main.34696942.js",
+    "main.css": "/Sergio-Slack-Template-Generator/static/css/main.68191ad3.css",
+    "main.js": "/Sergio-Slack-Template-Generator/static/js/main.94204c40.js",
     "static/js/453.b765096b.chunk.js": "/Sergio-Slack-Template-Generator/static/js/453.b765096b.chunk.js",
-    "static/media/slack-logo.png": "/Sergio-Slack-Template-Generator/static/media/slack-logo.08a9dcfe3abb4decbf15.png",
+    "static/media/slack-app-icon.jpeg": "/Sergio-Slack-Template-Generator/static/media/slack-app-icon.7c56d35b6b80597a4107.jpeg",
     "index.html": "/Sergio-Slack-Template-Generator/index.html",
-    "main.7e95e896.css.map": "/Sergio-Slack-Template-Generator/static/css/main.7e95e896.css.map",
-    "main.34696942.js.map": "/Sergio-Slack-Template-Generator/static/js/main.34696942.js.map",
+    "main.68191ad3.css.map": "/Sergio-Slack-Template-Generator/static/css/main.68191ad3.css.map",
+    "main.94204c40.js.map": "/Sergio-Slack-Template-Generator/static/js/main.94204c40.js.map",
     "453.b765096b.chunk.js.map": "/Sergio-Slack-Template-Generator/static/js/453.b765096b.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.7e95e896.css",
-    "static/js/main.34696942.js"
+    "static/css/main.68191ad3.css",
+    "static/js/main.94204c40.js"
   ]
 }

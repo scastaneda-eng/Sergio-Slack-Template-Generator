@@ -153,12 +153,12 @@ body {
 }
 
 .upload-card {
-  justify-content: space-between;
-  min-height: 380px;
+  justify-content: center;
+  min-height: 420px;
 }
 
 .results-card {
-  min-height: 380px;
+  min-height: 420px;
 }
 
 /* Reserve space for the color grid even when empty so layout doesn't jump */

@@ -154,6 +154,16 @@ body {
 
 .upload-card {
   justify-content: space-between;
+  min-height: 380px;
+}
+
+.results-card {
+  min-height: 380px;
+}
+
+/* Reserve space for the color grid even when empty so layout doesn't jump */
+.color-grid-placeholder {
+  min-height: 124px;
 }
 
 .upload-area {
@@ -164,6 +174,7 @@ body {
     radial-gradient(circle at top left, var(--accent-soft), transparent 55%),
     linear-gradient(135deg, rgba(61, 42, 82, 0.85), rgba(74, 53, 98, 0.95));
   padding: 20px;
+  min-height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -410,6 +421,70 @@ body {
   margin: 0;
   font-size: 0.88rem;
   color: var(--text-muted);
+}
+
+.readability {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  width: fit-content;
+}
+
+.readability-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.readability-good .readability-dot { background: #2EB67D; }
+.readability-fair .readability-dot { background: #ECB22E; }
+.readability-poor .readability-dot { background: #E8556B; }
+
+.readability-good { color: #B7E5C8; }
+.readability-fair { color: #F4D58A; }
+.readability-poor { color: #F4B5BF; }
+
+.readability-ratio {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+
+/* Placeholder swatches shown before a logo is uploaded */
+.color-swatch-placeholder {
+  opacity: 0.5;
+}
+
+.color-chip-placeholder {
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.04),
+      rgba(255, 255, 255, 0.04) 6px,
+      rgba(255, 255, 255, 0.08) 6px,
+      rgba(255, 255, 255, 0.08) 12px
+    );
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+/* Mentions row: the accent color is now a colored dot (not the text color)
+   so the row stays readable even when the accent contrasts poorly with the bg. */
+.sp-mentions {
+  font-weight: 900;
+}
+
+.sp-mentions-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.35);
 }
 
 .hidden-image {

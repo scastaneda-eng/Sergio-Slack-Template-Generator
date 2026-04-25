@@ -8,6 +8,40 @@ const rgbToHex = (r, g, b) => {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
 };
 
+// WCAG relative luminance for an sRGB color
+const relLuminance = (r, g, b) => {
+  const toLin = (c) => {
+    const cs = c / 255;
+    return cs <= 0.03928 ? cs / 12.92 : Math.pow((cs + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * toLin(r) + 0.7152 * toLin(g) + 0.0722 * toLin(b);
+};
+
+// WCAG contrast ratio between two RGB triplets (1.0 = identical, 21.0 = max)
+const contrastRatio = (rgb1, rgb2) => {
+  const L1 = relLuminance(...rgb1);
+  const L2 = relLuminance(...rgb2);
+  const lighter = Math.max(L1, L2);
+  const darker = Math.min(L1, L2);
+  return (lighter + 0.05) / (darker + 0.05);
+};
+
+// Pick whichever of white or near-black gives the best contrast against bg
+const bestForeground = (rgb) => {
+  const whiteRatio = contrastRatio(rgb, [255, 255, 255]);
+  const darkRatio = contrastRatio(rgb, [29, 28, 29]);
+  return whiteRatio >= darkRatio
+    ? { hex: '#FFFFFF', ratio: whiteRatio }
+    : { hex: '#1D1C1D', ratio: darkRatio };
+};
+
+// WCAG AA: 4.5 for normal text, 3.0 for large/bold text
+const gradeContrast = (ratio) => {
+  if (ratio >= 4.5) return 'good';
+  if (ratio >= 3.0) return 'fair';
+  return 'poor';
+};
+
 function App() {
   const [imagePreview, setImagePreview] = useState(null);
   const [colors, setColors] = useState([]);
@@ -122,11 +156,20 @@ function App() {
   const previewBg = colors[0]?.hex ?? '#3F0E40';
   const previewSelected = colors[1]?.hex ?? '#1164A3';
   const previewAccent = colors[3]?.hex ?? '#ECB22E';
-  const previewFg = (() => {
-    if (colors.length === 0) return '#fff';
-    const [r, g, b] = colors[0].rgb;
-    const lum = (r * 299 + g * 587 + b * 114) / 1000;
-    return lum < 128 ? '#fff' : '#1D1C1D';
+
+  // Compute the best foreground color for each Slack-sidebar surface independently.
+  // Without this, we end up using the sidebar's foreground color on the active item
+  // (which has a different background), making channel names invisible.
+  const sideFg = colors[0] ? bestForeground(colors[0].rgb) : { hex: '#FFFFFF', ratio: 21 };
+  const selectedFg = colors[1] ? bestForeground(colors[1].rgb) : { hex: '#FFFFFF', ratio: 21 };
+  const accentFg = colors[3] ? bestForeground(colors[3].rgb) : { hex: '#FFFFFF', ratio: 21 };
+
+  // Overall readability grade — the worst surface wins.
+  const themeReadability = (() => {
+    if (colors.length === 0) return null;
+    const ratios = [sideFg.ratio, selectedFg.ratio, accentFg.ratio];
+    const worst = Math.min(...ratios);
+    return { grade: gradeContrast(worst), ratio: worst };
   })();
 
   return (
@@ -196,9 +239,18 @@ function App() {
             )}
 
             {!isExtracting && colors.length === 0 && (
-              <p className="status-text status-text-muted">
-                Upload a logo to see its palette and Slack theme.
-              </p>
+              <div className="color-grid color-grid-placeholder">
+                {[0, 1, 2, 3].map((i) => (
+                  <div className="color-swatch color-swatch-placeholder" key={i}>
+                    <div className="color-chip color-chip-placeholder" />
+                    <div className="color-meta">
+                      <span className="color-label">Color {i + 1}</span>
+                      <span className="color-hex">—</span>
+                      <span className="color-rgb">Awaiting logo</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
 
             {colors.length > 0 && (
@@ -243,6 +295,19 @@ function App() {
                 The values map to your Slack sidebar colors from left to right
                 (background, active item, hover, text, and accents).
               </p>
+              {themeReadability && (
+                <div className={`readability readability-${themeReadability.grade}`}>
+                  <span className="readability-dot" aria-hidden="true" />
+                  <span className="readability-label">
+                    {themeReadability.grade === 'good' && 'Good readability'}
+                    {themeReadability.grade === 'fair' && 'Fair readability'}
+                    {themeReadability.grade === 'poor' && 'Poor readability — text may be hard to read'}
+                  </span>
+                  <span className="readability-ratio" title="WCAG contrast ratio (worst surface)">
+                    {themeReadability.ratio.toFixed(1)}:1
+                  </span>
+                </div>
+              )}
             </div>
           </section>
         </main>
@@ -251,11 +316,11 @@ function App() {
           <h2 className="card-title">3. Live sidebar preview</h2>
           <p className="card-subtitle">How your theme looks applied to a Slack workspace.</p>
           <div className="sidebar-preview">
-            <div className="sp-side" style={{ background: previewBg, color: previewFg }}>
+            <div className="sp-side" style={{ background: previewBg, color: sideFg.hex }}>
               <div className="sp-ws">Your Workspace</div>
               <div
                 className="sp-row selected"
-                style={{ background: previewSelected, color: previewFg }}
+                style={{ background: previewSelected, color: selectedFg.hex }}
               >
                 <span className="sp-hash">#</span>general
               </div>
@@ -265,7 +330,8 @@ function App() {
               <div className="sp-row">
                 <span className="sp-hash">#</span>random
               </div>
-              <div className="sp-row" style={{ color: previewAccent, fontWeight: 900 }}>
+              <div className="sp-row sp-mentions" style={{ color: sideFg.hex }}>
+                <span className="sp-mentions-dot" style={{ background: previewAccent }} aria-hidden="true" />
                 @ mentions · 3
               </div>
             </div>

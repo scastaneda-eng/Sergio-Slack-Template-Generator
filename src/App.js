@@ -49,7 +49,9 @@ function App() {
   const [error, setError] = useState('');
   const [isExtracting, setIsExtracting] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [justRevealed, setJustRevealed] = useState(false);
   const hiddenImageRef = useRef(null);
+  const previewRef = useRef(null);
 
   const resetResults = () => {
     setColors([]);
@@ -130,6 +132,26 @@ function App() {
       );
       setThemeString(finalTheme);
       setError('');
+
+      // Surprise-and-delight reveal: scroll so BOTH the palette (Box 2)
+      // and the live preview (Box 3) are visible together, and play a
+      // brief glow pulse on the preview card. Honor reduced-motion users.
+      const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      window.setTimeout(() => {
+        const previewEl = previewRef.current;
+        if (!previewEl) return;
+        // Aim for ~35% of viewport height of headroom above the preview
+        // card. That keeps the just-generated palette in view while still
+        // bringing the preview prominently into focus.
+        const headroom = Math.max(160, window.innerHeight * 0.35);
+        const targetY = previewEl.getBoundingClientRect().top + window.scrollY - headroom;
+        window.scrollTo({
+          top: Math.max(0, targetY),
+          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        });
+      }, 250);
+      setJustRevealed(true);
+      window.setTimeout(() => setJustRevealed(false), 1800);
     } catch (error) {
       console.error('Color extraction failed', error);
       setError('Something went wrong while extracting colors. Check the console for details and try another image.');
@@ -315,7 +337,11 @@ function App() {
           </section>
         </main>
 
-        <section className="card preview-card">
+        <section
+          ref={previewRef}
+          className={`card preview-card${justRevealed ? ' preview-card-revealed' : ''}`}
+          style={{ '--reveal-glow': previewAccent }}
+        >
           <h2 className="card-title">3. Live sidebar preview</h2>
           <p className="card-subtitle">How your theme looks applied to a Slack workspace.</p>
           <div className="sidebar-preview">

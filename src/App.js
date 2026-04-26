@@ -192,36 +192,38 @@ function App() {
         <main className="app-main">
           <section className="card upload-card">
             <h2 className="card-title">1. Upload your logo</h2>
-            <p className="card-subtitle">
-              Drag &amp; drop a file here or click to browse.
-            </p>
-            <label
-              className="upload-area"
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-            >
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleInputChange}
-              />
-              <div className="upload-content">
-                {imagePreview ? (
-                  <div className="upload-preview">
-                    <img src={imagePreview} alt="Uploaded logo preview" />
-                  </div>
-                ) : (
-                  <>
-                    <div className="upload-icon">＋</div>
-                    <div className="upload-text">
-                      <span className="upload-main">Drop logo image here</span>
-                      <span className="upload-secondary">PNG, JPG, SVG up to ~5MB</span>
+            <div className="upload-card-body">
+              <p className="card-subtitle">
+                Drag &amp; drop a file here or click to browse.
+              </p>
+              <label
+                className="upload-area"
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleInputChange}
+                />
+                <div className="upload-content">
+                  {imagePreview ? (
+                    <div className="upload-preview">
+                      <img src={imagePreview} alt="Uploaded logo preview" />
                     </div>
-                  </>
-                )}
-              </div>
-            </label>
-            {error && <p className="error-text">{error}</p>}
+                  ) : (
+                    <>
+                      <div className="upload-icon">＋</div>
+                      <div className="upload-text">
+                        <span className="upload-main">Drop logo image here</span>
+                        <span className="upload-secondary">PNG, JPG, SVG up to ~5MB</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </label>
+              {error && <p className="error-text">{error}</p>}
+            </div>
           </section>
 
           <section className="card results-card">
@@ -295,19 +297,20 @@ function App() {
                 The values map to your Slack sidebar colors from left to right
                 (background, active item, hover, text, and accents).
               </p>
-              {themeReadability && (
-                <div className={`readability readability-${themeReadability.grade}`}>
-                  <span className="readability-dot" aria-hidden="true" />
-                  <span className="readability-label">
-                    {themeReadability.grade === 'good' && 'Good readability'}
-                    {themeReadability.grade === 'fair' && 'Fair readability'}
-                    {themeReadability.grade === 'poor' && 'Poor readability — text may be hard to read'}
-                  </span>
-                  <span className="readability-ratio" title="WCAG contrast ratio (worst surface)">
-                    {themeReadability.ratio.toFixed(1)}:1
-                  </span>
-                </div>
-              )}
+              <div
+                className={`readability readability-${themeReadability ? themeReadability.grade : 'empty'}`}
+              >
+                <span className="readability-dot" aria-hidden="true" />
+                <span className="readability-label">
+                  {!themeReadability && 'Readability check'}
+                  {themeReadability?.grade === 'good' && 'Good readability'}
+                  {themeReadability?.grade === 'fair' && 'Fair readability'}
+                  {themeReadability?.grade === 'poor' && 'Poor readability — text may be hard to read'}
+                </span>
+                <span className="readability-ratio" title="WCAG contrast ratio (worst surface)">
+                  {themeReadability ? `${themeReadability.ratio.toFixed(1)}:1` : '—'}
+                </span>
+              </div>
             </div>
           </section>
         </main>

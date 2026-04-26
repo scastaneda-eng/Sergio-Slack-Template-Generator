@@ -153,8 +153,19 @@ body {
 }
 
 .upload-card {
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 420px;
+}
+
+/* Title sits at top of upload-card; subtitle + upload area are centered
+   within the remaining vertical space so the visual shift on upload is
+   limited to swapping content inside the dotted box. */
+.upload-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
 }
 
 .results-card {
@@ -449,6 +460,17 @@ body {
 .readability-good { color: #B7E5C8; }
 .readability-fair { color: #F4D58A; }
 .readability-poor { color: #F4B5BF; }
+
+/* Empty/placeholder state — same dimensions as the populated badge so
+   it reserves layout space before a logo is uploaded. */
+.readability-empty {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.readability-empty .readability-dot {
+  background: rgba(255, 255, 255, 0.25);
+}
 
 .readability-ratio {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;

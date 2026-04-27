@@ -133,10 +133,10 @@ body {
     var(--bg-elevated-soft);
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-strong);
-  padding: 18px 18px 20px;
+  padding: 16px 18px 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 13px;
 }
 
 .card-title {
@@ -172,7 +172,7 @@ body {
 
 .upload-card {
   justify-content: flex-start;
-  min-height: 420px;
+  min-height: 380px;
 }
 
 /* Title sits at top of upload-card; subtitle + upload area are centered
@@ -187,7 +187,7 @@ body {
 }
 
 .results-card {
-  min-height: 420px;
+  min-height: 380px;
 }
 
 /* Reserve space for the color grid even when empty so layout doesn't jump */
@@ -417,7 +417,7 @@ body {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
     monospace;
   outline: none;
-  min-height: 70px;
+  min-height: 60px;
 }
 
 .theme-textarea::placeholder {

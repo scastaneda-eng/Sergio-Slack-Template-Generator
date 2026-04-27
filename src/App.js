@@ -3,6 +3,8 @@ import { getPalette } from 'colorthief';
 import './App.css';
 import slackAppIcon from './slack-app-icon.jpeg';
 
+const ROLES = ['Background', 'Active', 'Hover', 'Accent'];
+
 const rgbToHex = (r, g, b) => {
   const toHex = (value) => value.toString(16).padStart(2, '0');
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
@@ -42,6 +44,25 @@ const gradeContrast = (ratio) => {
   return 'poor';
 };
 
+const UploadIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="26" height="26">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline points="17 8 12 3 7 8"/>
+    <line x1="12" y1="3" x2="12" y2="15"/>
+  </svg>
+);
+
+const CopyIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+  </svg>
+);
+
+function StepBadge({ number }) {
+  return <span className="step-badge">{number}</span>;
+}
+
 function App() {
   const [imagePreview, setImagePreview] = useState(null);
   const [colors, setColors] = useState([]);
@@ -52,6 +73,16 @@ function App() {
   const [justRevealed, setJustRevealed] = useState(false);
   const hiddenImageRef = useRef(null);
   const previewRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const resetAll = () => {
+    setImagePreview(null);
+    setColors([]);
+    setThemeString('');
+    setError('');
+    setCopied(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const resetResults = () => {
     setColors([]);
@@ -81,7 +112,7 @@ function App() {
       setError('Could not read this image file. Please try another one.');
     };
     reader.readAsDataURL(file);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleInputChange = (event) => {
     const file = event.target.files && event.target.files[0];
@@ -133,16 +164,10 @@ function App() {
       setThemeString(finalTheme);
       setError('');
 
-      // Surprise-and-delight reveal: scroll so BOTH the palette (Box 2)
-      // and the live preview (Box 3) are visible together, and play a
-      // brief glow pulse on the preview card. Honor reduced-motion users.
       const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
       window.setTimeout(() => {
         const previewEl = previewRef.current;
         if (!previewEl) return;
-        // Aim for ~35% of viewport height of headroom above the preview
-        // card. That keeps the just-generated palette in view while still
-        // bringing the preview prominently into focus.
         const headroom = Math.max(160, window.innerHeight * 0.35);
         const targetY = previewEl.getBoundingClientRect().top + window.scrollY - headroom;
         window.scrollTo({
@@ -179,14 +204,10 @@ function App() {
   const previewSelected = colors[1]?.hex ?? '#1164A3';
   const previewAccent = colors[3]?.hex ?? '#ECB22E';
 
-  // Compute the best foreground color for each Slack-sidebar surface independently.
-  // Without this, we end up using the sidebar's foreground color on the active item
-  // (which has a different background), making channel names invisible.
   const sideFg = colors[0] ? bestForeground(colors[0].rgb) : { hex: '#FFFFFF', ratio: 21 };
   const selectedFg = colors[1] ? bestForeground(colors[1].rgb) : { hex: '#FFFFFF', ratio: 21 };
-  const accentFg = colors[3] ? bestForeground(colors[3].rgb) : { hex: '#FFFFFF', ratio: 21 };
+  const accentFg = colors[3] ? bestForeground(colors[3].rgb) : { hex: '#1D1C1D', ratio: 21 };
 
-  // Overall readability grade — the worst surface wins.
   const themeReadability = (() => {
     if (colors.length === 0) return null;
     const ratios = [sideFg.ratio, selectedFg.ratio, accentFg.ratio];
@@ -213,7 +234,7 @@ function App() {
 
         <main className="app-main">
           <section className="card upload-card">
-            <h2 className="card-title">1. Upload your logo</h2>
+            <h2 className="card-title"><StepBadge number={1} />Upload your logo</h2>
             <div className="upload-card-body">
               <p className="card-subtitle">
                 Drag &amp; drop a file here or click to browse.
@@ -224,6 +245,7 @@ function App() {
                 onDrop={handleDrop}
               >
                 <input
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   onChange={handleInputChange}
@@ -232,10 +254,16 @@ function App() {
                   {imagePreview ? (
                     <div className="upload-preview">
                       <img src={imagePreview} alt="Uploaded logo preview" />
+                      <div className="upload-text">
+                        <span className="upload-main">Logo loaded {colors.length > 0 ? '✓' : '…'}</span>
+                        <span className="upload-secondary">{colors.length > 0 ? 'Palette ready' : 'Extracting colors…'}</span>
+                      </div>
                     </div>
                   ) : (
                     <>
-                      <div className="upload-icon">＋</div>
+                      <div className="upload-icon">
+                        <UploadIcon />
+                      </div>
                       <div className="upload-text">
                         <span className="upload-main">Drop logo image here</span>
                         <span className="upload-secondary">PNG, JPG, SVG up to ~5MB</span>
@@ -244,12 +272,21 @@ function App() {
                   )}
                 </div>
               </label>
+              {imagePreview && (
+                <button
+                  type="button"
+                  className="reset-link"
+                  onClick={resetAll}
+                >
+                  Upload a different logo
+                </button>
+              )}
               {error && <p className="error-text">{error}</p>}
             </div>
           </section>
 
           <section className="card results-card">
-            <h2 className="card-title">2. Palette &amp; Slack theme</h2>
+            <h2 className="card-title"><StepBadge number={2} />Palette &amp; Slack theme</h2>
             <p className="card-subtitle">
               The 4 most dominant colors detected — paste the string into{' '}
               <span className="theme-highlight">
@@ -264,11 +301,11 @@ function App() {
 
             {!isExtracting && colors.length === 0 && (
               <div className="color-grid color-grid-placeholder">
-                {[0, 1, 2, 3].map((i) => (
+                {ROLES.map((role, i) => (
                   <div className="color-swatch color-swatch-placeholder" key={i}>
                     <div className="color-chip color-chip-placeholder" />
                     <div className="color-meta">
-                      <span className="color-label">Color {i + 1}</span>
+                      <span className="color-role">{role}</span>
                       <span className="color-hex">—</span>
                       <span className="color-rgb">Awaiting logo</span>
                     </div>
@@ -286,10 +323,10 @@ function App() {
                       style={{ backgroundColor: color.hex }}
                     />
                     <div className="color-meta">
-                      <span className="color-label">Color {index + 1}</span>
+                      <span className="color-role">{ROLES[index]}</span>
                       <span className="color-hex">{color.hex}</span>
                       <span className="color-rgb">
-                        rgb({color.rgb[0]}, {color.rgb[1]}, {color.rgb[2]})
+                        {color.rgb[0]}, {color.rgb[1]}, {color.rgb[2]}
                       </span>
                     </div>
                   </div>
@@ -308,16 +345,16 @@ function App() {
                 />
                 <button
                   type="button"
-                  className="copy-button"
+                  className={`copy-button${copied ? ' copied' : ''}`}
                   disabled={!themeString}
                   onClick={handleCopyTheme}
                 >
-                  {copied ? 'Copied' : 'Copy'}
+                  <CopyIcon />
+                  <span>{copied ? 'Copied' : 'Copy'}</span>
                 </button>
               </div>
               <p className="theme-help-text">
-                The values map to your Slack sidebar colors from left to right
-                (background, active item, hover, text, and accents).
+                Paste into <code>Slack › Preferences › Sidebar › Custom theme</code>. Colors map left to right: background, active item, hover, accent.
               </p>
               <div
                 className={`readability readability-${themeReadability ? themeReadability.grade : 'empty'}`}
@@ -342,39 +379,63 @@ function App() {
           className={`card preview-card${justRevealed ? ' preview-card-revealed' : ''}`}
           style={{ '--reveal-glow': previewAccent }}
         >
-          <h2 className="card-title">3. Live sidebar preview</h2>
+          <h2 className="card-title"><StepBadge number={3} />Live sidebar preview</h2>
           <p className="card-subtitle">How your theme looks applied to a Slack workspace.</p>
           <div className="sidebar-preview">
             <div className="sp-side" style={{ background: previewBg, color: sideFg.hex }}>
-              <div className="sp-ws">Your Workspace</div>
+              <div className="sp-ws">
+                <span>Acme Co.</span>
+                <span className="sp-caret">⌄</span>
+              </div>
+              <div className="sp-section-label">Channels</div>
               <div
                 className="sp-row selected"
                 style={{ background: previewSelected, color: selectedFg.hex }}
               >
                 <span className="sp-hash">#</span>general
               </div>
+              <div className="sp-row"><span className="sp-hash">#</span>design</div>
+              <div className="sp-row"><span className="sp-hash">#</span>random</div>
+              <div className="sp-row sp-row-mention">
+                <span className="sp-hash">#</span>announcements
+                <span
+                  className="sp-mention-badge"
+                  style={{ background: previewAccent, color: accentFg.hex }}
+                >
+                  3
+                </span>
+              </div>
+              <div className="sp-section-label">Direct messages</div>
               <div className="sp-row">
-                <span className="sp-hash">#</span>design
+                <span className="sp-presence-dot sp-presence-online" />
+                Riley K.
               </div>
               <div className="sp-row">
-                <span className="sp-hash">#</span>random
-              </div>
-              <div className="sp-row sp-mentions" style={{ color: sideFg.hex }}>
-                <span className="sp-mentions-dot" style={{ background: previewAccent }} aria-hidden="true" />
-                @ mentions · 3
+                <span className="sp-presence-dot sp-presence-away" style={{ borderColor: sideFg.hex }} />
+                Marcus O.
               </div>
             </div>
             <div className="sp-main">
+              <div className="sp-channel-header"># general</div>
               <div className="sp-msg">
-                <div className="sp-av">RK</div>
+                <div className="sp-av" style={{ background: '#E01E5A' }}>RK</div>
                 <div className="sp-body">
-                  <b>Riley K.</b>Live preview of your sidebar theme 🎨
+                  <b>Riley K.<span className="sp-ts">10:24 AM</span></b>
+                  <p>Live preview of your sidebar theme — looking sharp 🎨</p>
                 </div>
               </div>
               <div className="sp-msg">
                 <div className="sp-av" style={{ background: '#2EB67D' }}>MO</div>
                 <div className="sp-body">
-                  <b>Marcus O.</b>Looks great with the brand colors
+                  <b>Marcus O.<span className="sp-ts">10:26 AM</span></b>
+                  <p>Love how the accent color picks up on the @mentions badge ✨</p>
+                </div>
+              </div>
+              <div className="sp-msg">
+                <div className="sp-av" style={{ background: '#36C5F0' }}>PS</div>
+                <div className="sp-body">
+                  <b>Priya S.<span className="sp-ts">10:31 AM</span></b>
+                  <p>Approved — let's ship it to the customer.</p>
                 </div>
               </div>
             </div>

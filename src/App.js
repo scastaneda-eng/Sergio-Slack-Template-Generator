@@ -114,7 +114,7 @@ function App() {
         return;
       }
       const hexColors = palette.map((color) => {
-        const { r, g, b } = color.rgb();
+        const [r, g, b] = color;
         return rgbToHex(r, g, b);
       });
 
@@ -122,7 +122,7 @@ function App() {
 
       setColors(
         palette.map((color, index) => {
-          const { r, g, b } = color.rgb();
+          const [r, g, b] = color;
           return {
             id: `${r}-${g}-${b}-${index}`,
             rgb: [r, g, b],

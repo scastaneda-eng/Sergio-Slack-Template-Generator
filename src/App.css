@@ -471,26 +471,6 @@ body {
   box-shadow: 0 8px 20px rgba(74, 21, 75, 0.5);
 }
 
-.theme-help-text {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  line-height: 1.5;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.theme-help-text code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  background: rgba(236, 178, 46, 0.12);
-  color: #f4d585;
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 0.82rem;
-}
-
 .readability {
   display: inline-flex;
   align-items: center;

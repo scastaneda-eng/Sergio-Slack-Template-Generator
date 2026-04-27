@@ -145,7 +145,7 @@ function App() {
         return;
       }
       const hexColors = palette.map((color) => {
-        const [r, g, b] = color;
+        const [r, g, b] = color.array();
         return rgbToHex(r, g, b);
       });
 
@@ -153,7 +153,7 @@ function App() {
 
       setColors(
         palette.map((color, index) => {
-          const [r, g, b] = color;
+          const [r, g, b] = color.array();
           return {
             id: `${r}-${g}-${b}-${index}`,
             rgb: [r, g, b],
@@ -353,9 +353,6 @@ function App() {
                   <span>{copied ? 'Copied' : 'Copy'}</span>
                 </button>
               </div>
-              <p className="theme-help-text">
-                Paste into <code>Slack › Preferences › Sidebar › Custom theme</code>. Colors map left to right: background, active item, hover, accent.
-              </p>
               <div
                 className={`readability readability-${themeReadability ? themeReadability.grade : 'empty'}`}
               >

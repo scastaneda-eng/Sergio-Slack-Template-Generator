@@ -75,6 +75,7 @@ function App() {
   const hiddenImageRef = useRef(null);
   const previewRef = useRef(null);
   const fileInputRef = useRef(null);
+  const uploadVersionRef = useRef(0);
 
   const resetAll = () => {
     setImagePreview(null);
@@ -112,14 +113,17 @@ function App() {
 
     resetResults();
 
+    const myVersion = ++uploadVersionRef.current;
     const reader = new FileReader();
     reader.onload = () => {
+      if (myVersion !== uploadVersionRef.current) return;
       const result = reader.result;
       if (typeof result === 'string') {
         setImagePreview(result);
       }
     };
     reader.onerror = () => {
+      if (myVersion !== uploadVersionRef.current) return;
       setError('Could not read this image file. Please try another one.');
     };
     reader.readAsDataURL(file);
@@ -150,9 +154,11 @@ function App() {
     const img = hiddenImageRef.current;
     if (!img) return;
 
+    const myVersion = uploadVersionRef.current;
     try {
       setIsExtracting(true);
       const palette = await getPalette(img, { colorCount: 4 });
+      if (myVersion !== uploadVersionRef.current) return;
 
       if (!Array.isArray(palette) || palette.length === 0) {
         setError('Unable to extract colors from this image.');
@@ -194,12 +200,15 @@ function App() {
       setJustRevealed(true);
       window.setTimeout(() => setJustRevealed(false), 1800);
     } catch (error) {
+      if (myVersion !== uploadVersionRef.current) return;
       console.error('Color extraction failed', error);
       setError('Could not extract colors from this image. Try a smaller JPG or a PNG without transparency.');
       setColors([]);
       setThemeString('');
     } finally {
-      setIsExtracting(false);
+      if (myVersion === uploadVersionRef.current) {
+        setIsExtracting(false);
+      }
     }
   };
 
@@ -364,11 +373,15 @@ function App() {
                   className={`copy-button${copied ? ' copied' : ''}`}
                   disabled={!themeString}
                   onClick={handleCopyTheme}
+                  aria-label={copied ? 'Theme string copied to clipboard' : 'Copy theme string to clipboard'}
                 >
                   <CopyIcon />
                   <span>{copied ? 'Copied' : 'Copy'}</span>
                 </button>
               </div>
+              <span role="status" aria-live="polite" className="visually-hidden">
+                {copied ? 'Theme string copied to clipboard' : ''}
+              </span>
               <div
                 className={`readability readability-${themeReadability ? themeReadability.grade : 'empty'}`}
               >

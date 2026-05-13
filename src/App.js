@@ -4,6 +4,7 @@ import './App.css';
 import slackAppIcon from './slack-app-icon.jpeg';
 
 const ROLES = ['Background', 'Active', 'Hover', 'Accent'];
+const MAX_FILE_BYTES = 5 * 1024 * 1024;
 
 const rgbToHex = (r, g, b) => {
   const toHex = (value) => value.toString(16).padStart(2, '0');
@@ -95,7 +96,17 @@ function App() {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setError('Please upload an image file (PNG, JPG, SVG, etc.).');
+      setError('Please upload an image file (PNG or JPG).');
+      return;
+    }
+
+    if (file.type === 'image/svg+xml') {
+      setError('SVG files are not supported for color extraction. Please export your logo as a PNG or JPG and try again.');
+      return;
+    }
+
+    if (file.size > MAX_FILE_BYTES) {
+      setError('That image is too large. Please upload a logo under 5MB.');
       return;
     }
 
@@ -126,8 +137,13 @@ function App() {
 
   const handleDrop = (event) => {
     event.preventDefault();
-    const file = event.dataTransfer.files && event.dataTransfer.files[0];
-    handleFile(file);
+    const files = event.dataTransfer.files;
+    if (!files || files.length === 0) return;
+    if (files.length > 1) {
+      setError('Please drop just one logo file at a time.');
+      return;
+    }
+    handleFile(files[0]);
   };
 
   const handleImageLoad = async () => {
@@ -179,7 +195,7 @@ function App() {
       window.setTimeout(() => setJustRevealed(false), 1800);
     } catch (error) {
       console.error('Color extraction failed', error);
-      setError('Something went wrong while extracting colors. Check the console for details and try another image.');
+      setError('Could not extract colors from this image. Try a smaller JPG or a PNG without transparency.');
       setColors([]);
       setThemeString('');
     } finally {
@@ -247,7 +263,7 @@ function App() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/png,image/jpeg,image/webp"
                   onChange={handleInputChange}
                 />
                 <div className="upload-content">
@@ -266,7 +282,7 @@ function App() {
                       </div>
                       <div className="upload-text">
                         <span className="upload-main">Drop logo image here</span>
-                        <span className="upload-secondary">PNG, JPG, SVG up to ~5MB</span>
+                        <span className="upload-secondary">PNG or JPG up to 5MB</span>
                       </div>
                     </>
                   )}
@@ -452,6 +468,10 @@ function App() {
           className="hidden-image"
           crossOrigin="anonymous"
           onLoad={handleImageLoad}
+          onError={() => {
+            setIsExtracting(false);
+            setError('That image could not be loaded. If you pasted a URL, the host may block cross-origin requests — try downloading the file and uploading it directly.');
+          }}
         />
       )}
     </div>
